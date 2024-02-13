@@ -34,7 +34,7 @@ Report bugs to https://github.com/matteocorti/vpn_eth/issues
 
 see [INSTALL.md](INSTALL.md) for installation instructions.
 
-You will need your RADIUS password and your OTP secret: see [About the «OTP Secret»](https://people.math.ethz.ch/~michele/vpn-mfa-without-pw#otp-secret)
+You will need your RADIUS password and your OTP secret: see  [About the «OTP Secret»](https://github.com/matteocorti/vpn_eth/wiki/OTP-Secret)
 
 Both will be stored in your macOS keychain.
 
