@@ -20,7 +20,7 @@ error() {
 }
 
 if [ -n "${SSH_CLIENT}" ] ; then
-    error "You are connected via SSH. The keychain is not accessible"
+    error "You are connected via SSH. The keychain is not accessible."
 fi
 
 # read the settings
