@@ -11,6 +11,18 @@ SETTINGS=~/.vpn_eth.rc
 VPZS_CACHE=~/.vpn_eth.vpzs
 REALMS_CACHE=~/.vpn_eth.realms
 
+################################################################################
+# Prints an error message and exits
+#  $1 error message
+error() {
+    echo "Error: $1" 1>&2
+    exit
+}
+
+if [ -n "${SSH_CLIENT}" ] ; then
+    error "You are connected via SSH. The keychain is not accessible"
+fi
+
 # read the settings
 if ! [ -f "${SETTINGS}" ]; then
     touch "${SETTINGS}"
@@ -133,11 +145,6 @@ usage() {
 
     exit
 
-}
-
-error() {
-    echo "Error: $1" 1>&2
-    exit
 }
 
 ################################################################################
