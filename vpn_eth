@@ -5,7 +5,7 @@
 # see: https://people.math.ethz.ch/~michele/vpn-mfa-without-pw
 
 VPN="/opt/cisco/secureclient/bin/vpn"
-VERSION=1.0.0
+VERSION=1.0.1
 
 SETTINGS=~/.vpn_eth.rc
 VPZS_CACHE=~/.vpn_eth.vpzs

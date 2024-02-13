@@ -42,8 +42,8 @@ By the first run the script will ask for the credentials:
 
 ```text
 $ ./vpn_eth connect
-Please specify RADIUS password: 
-Please specify OTP secret: 
+Please specify RADIUS password:
+Please specify OTP secret:
 ```
 
 

@@ -1,6 +1,6 @@
 2024-02-13  Matteo Corti  <matteo@corti.li>
 
-	* vpn_eth (cache):  create cache file if not existing
+	* vpn_eth (cache): create cache file if not existing
     * vpn_eth (error): check if connected with SSH
     * vpn_eth (check_required_prog): checks for oathtool
 

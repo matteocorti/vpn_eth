@@ -1,6 +1,6 @@
 VERSION=`cat VERSION`
 DIST_DIR=vpn_eth-$(VERSION)
-DIST_FILES=vpn_eth VERSION Makefile vpn_eth.completion
+DIST_FILES=vpn_eth VERSION Makefile vpn_eth.completion README.md NEWS.md AUTHORS.md LICENSE GNUmakefile ChangeLog
 FORMATTED_FILES=vpn_eth VERSION vpn_eth.completion
 SHELLCHECK_FILES=vpn_eth
 YEAR=`date +"%Y"`
