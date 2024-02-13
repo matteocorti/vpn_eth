@@ -126,6 +126,9 @@ usage() {
     echo "   -v,--version                    Prints the script version number"
     echo "   -z,--vpz vpz                    VPZ"
     echo
+    echo "Report bugs to https://github.com/matteocorti/vpn_eth/issues"
+    echo
+
     # Delimiter at 78 chars ############################################################
 
     exit
