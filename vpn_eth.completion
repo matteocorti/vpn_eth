@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+_vpn_eth() {
+
+    local cur prev opts
+
+    COMPREPLY=()
+
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD - 1]}"
+
+    #
+    # list of command line options
+    #   only the autocompletion with long options is implemented: long options are more readable and quick to enter since we are
+    #   using autocompletion.
+    #
+    opts="--help connect disconnect status --verbose --version --vpz --realm --user --server"
+
+    if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]]; then
+        # shellcheck disable=2207
+        COMPREPLY=($(compgen -W "${opts}" -- "${cur}"))
+        return 0
+    fi
+
+    #
+    # options with arguments: if the option requires an argument we try to autocomplete it if possible
+    #
+    case "${prev}" in
+
+        # options with cached arguments
+        --vpz|-z)
+            if [[ -r ~/.vpn_eth.vpzs ]]; then
+                # concatenate the array with the cached hosts: https://stackoverflow.com/questions/31143874/how-to-concatenate-arrays-in-bash
+                # shellcheck disable=2207
+                COMPREPLY+=($(compgen -W "$(tr <~/.vpn_eth.vpzs "\n" ' ')" -- "${cur}"))
+            fi
+            ;;
+        --realm|-r)
+            if [[ -r ~/.vpn_eth.realms ]]; then
+                # concatenate the array with the cached hosts: https://stackoverflow.com/questions/31143874/how-to-concatenate-arrays-in-bash
+                # shellcheck disable=2207
+                COMPREPLY+=($(compgen -W "$(tr <~/.vpn_eth.realms "\n" ' ')" -- "${cur}"))
+            fi
+            ;;
+
+    *) ;;
+
+    esac
+
+}
+
+complete -F _vpn_eth vpn_eth

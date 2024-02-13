@@ -1,0 +1,304 @@
+#!/bin/sh
+
+# Copyright (c) 2024 Matteo Corti <matteo.corti@ethz.ch>
+
+# see: https://people.math.ethz.ch/~michele/vpn-mfa-without-pw
+
+VPN="/opt/cisco/secureclient/bin/vpn"
+VERSION=1.0.0
+
+SETTINGS=~/.vpn_eth.rc
+VPZS_CACHE=~/.vpn_eth.vpzs
+REALMS_CACHE=~/.vpn_eth.realms
+
+# read the settings
+if ! [ -f "${SETTINGS}" ]; then
+    touch "${SETTINGS}"
+fi
+
+# shellcheck disable=SC1090
+. "${SETTINGS}"
+
+define_setting() {
+
+    VARIABLE=$1
+    NAME=$2
+
+    if ! grep -q "^${VARIABLE}=" "${SETTINGS}"; then
+
+        eval "input=\$${VARIABLE}"
+
+        if [ -z "${input}" ]; then
+            # the user did not specified the value on the command line --> ask
+            printf "Please specify the %s: " "${NAME}"
+            read -r input
+        fi
+        echo "${VARIABLE}=${input}" >>"${SETTINGS}"
+    fi
+
+}
+
+################################################################################
+# Caches a parameter
+#  $1 cache file
+#  $2 parameter
+cache() {
+
+    cache_file=$1
+    parameter=$2
+
+    if [ -r "${cache_file}" ]; then
+        touch "${cache_file}"
+    fi
+
+    if ! grep -q "^${parameter}$" "${cache_file}"; then
+        echo "${parameter}" >>"${cache_file}"
+    fi
+
+}
+
+################################################################################
+# Gets a password from the keychain and sets it if not available (initialization)
+#  $1 account name
+#  $2 service
+#  $3 name
+#  returns the password in the 'password' variable
+get_from_keychain() {
+
+    account=$1
+    service=$2
+    name=$3
+
+    if security find-generic-password -a "${account}" -s "${service}" -w >/dev/null 2>&1; then
+        password=$(security find-generic-password -a "${account}" -s "${service}" -w)
+    else
+
+        # read -s is not POSIX but works on macOS (and this script is macOS-only)
+        # shellcheck disable=SC3045
+        read -s -r -p "Please specify ${name}: " password
+        echo
+
+        # shellcheck disable=SC2154
+        security add-generic-password -a "${account}" -s "${service}" -l "${name} for ${account}" -w "${password}"
+
+    fi
+
+}
+
+################################################################################
+# Initialize the settings
+init() {
+
+    define_setting SERVER "VPN server"
+    define_setting USER "user"
+    define_setting REALM "realm"
+    define_setting VPZ "vpz"
+
+    # check if the password is stored
+    #radius_password=$( get_from_keychain "${USER}@${REALM}.ethz.ch" "eth_radius" "RADIUS password" )
+    get_from_keychain "${USER}" "eth_radius" "RADIUS password"
+    get_from_keychain "${USER}" "eth_otp_secret" "OTP secret"
+
+}
+
+################################################################################
+# Prints usage information
+# Params
+#   $1 error message (optional)
+usage() {
+
+    # Delimiter at 78 chars ############################################################
+    echo
+    echo "Usage: vpn_eth.sh command [OPTIONS]"
+    echo "       vpn_eth.sh --help"
+    echo
+    echo "Commands:"
+    echo "   connect                         Connects"
+    echo "   disconnect                      Disconnects"
+    echo "   status                          Shows the connection status"
+    echo
+    echo "Options:"
+    echo "   -i,--init                       Initializes the default settings"
+    echo "   -h,--help,-?                    This help message"
+    echo "   -r,--realm realm                Realm"
+    echo "   -s,--server server              VPN server"
+    echo "   -u,--user user                  User"
+    echo "   -v,--version                    Prints the script version number"
+    echo "   -z,--vpz vpz                    VPZ"
+    echo
+    # Delimiter at 78 chars ############################################################
+
+    exit
+
+}
+
+error() {
+    echo "Error: $1" 1>&2
+    exit
+}
+
+################################################################################
+# Checks if there is an option argument (should not begin with -)
+#
+# Params
+#  $1 name of the option (e.g., '-w,--warning') to be used in the error message
+#  $2 next command line parameter
+check_option_argument() {
+
+    # shellcheck disable=SC2295
+    if [ -z "$2" ] || [ "${2%${2#?}}"x = '-x' ]; then
+        error "'${1}' requires an argument"
+    fi
+
+}
+
+while true; do
+
+    case "$1" in
+
+    ########################################
+    # Options without arguments
+
+    -i | --init)
+        init
+        shift
+        ;;
+
+    -h | --help | -\?)
+        usage
+        ;;
+
+    --version)
+        echo "vpn_eth version ${VERSION}"
+        exit
+        ;;
+
+    -v | --verbose)
+        VERBOSE=1
+        shift
+        ;;
+
+    ########################################
+    # Commands
+
+    connect)
+        COMMAND=connect
+        shift
+        ;;
+
+    disconnect)
+        COMMAND=disconnect
+        shift
+        ;;
+
+    status)
+        COMMAND=status
+        shift
+        ;;
+
+    ########################################
+    # Options with one argument
+
+    -r | --realm)
+        check_option_argument '-r,--realm' "$2"
+        REALM="$2"
+        shift 2
+        ;;
+
+    -s | --server)
+        check_option_argument '-s,--server' "$2"
+        SERVER="$2"
+        shift 2
+        ;;
+
+    -u | --user)
+        check_option_argument '-u,--user' "$2"
+        USER="$2"
+        shift 2
+        ;;
+
+    -z | --vpz)
+        check_option_argument '-z,--vpz' "$2"
+        VPZ="$2"
+        shift 2
+        ;;
+
+    ########################################
+    # Special
+    --)
+        shift
+        break
+        ;;
+
+    *)
+        if [ -n "$1" ]; then
+            error "invalid option or command: '${1}'"
+        fi
+        break
+        ;;
+    esac
+
+done
+
+cache "${VPZS_CACHE}" "${VPZ}"
+cache "${REALMS_CACHE}" "${REALM}"
+
+case "${COMMAND}" in
+
+connect)
+
+    # get the credentials from macOS keychain
+    get_from_keychain "${USER}" "eth_radius" "RADIUS password"
+    radius_password="${password}"
+    get_from_keychain "${USER}" "eth_otp_secret" "OTP secret"
+    otp_secret="${password}"
+
+    if ! otp_code=$(oathtool --totp=sha1 --time-step-size=30 -b "${otp_secret}" 2>/dev/null); then
+        error "cannot generate OTP code (check the OTP secret in the keychain)"
+    fi
+
+    if [ -n "${VERBOSE}" ]; then
+        printf "%s@%s.ethz.ch\n%s\n%s\n" "${USER}" "${REALM}" "${radius_password}" "${otp_code}" |
+            ${VPN} -s connect "https://${SERVER}/${VPZ}"
+    else
+        printf "%s@%s.ethz.ch\n%s\n%s\n" "${USER}" "${REALM}" "${radius_password}" "${otp_code}" |
+            ${VPN} -s connect "https://${SERVER}/${VPZ}" 2>&1 |
+            grep 'error:' |
+            sed 's/^.*>> e/E/'
+    fi
+
+    ;;
+
+disconnect)
+
+    if ${VPN} status | grep -q Connected; then
+
+        if [ -n "${VERBOSE}" ]; then
+            ${VPN} disconnect
+        else
+            ${VPN} disconnect >/dev/null
+        fi
+
+    fi
+
+    ;;
+
+status)
+
+    if [ -n "${VERBOSE}" ]; then
+        ${VPN} status
+    else
+        ${VPN} status | grep 'state:' | tail -n 1 | sed 's/^.*: //'
+    fi
+
+    ;;
+
+*)
+    if [ -n "${COMMAND}" ]; then
+        error "Unknown command ${COMMAND}"
+    else
+        error "Please specify a command (status, connect or disconnect)"
+    fi
+    ;;
+
+esac
