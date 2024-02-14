@@ -10,16 +10,15 @@ A script to manage VPN connection with Cisco Secure Client on macOS to the ETH Z
 
 ## Usage
 ```text
-Usage: vpn_eth.sh command [OPTIONS]
-       vpn_eth.sh --help
+Usage: vpn_eth.sh [ command ] [OPTIONS]
 
 Commands:
    connect                         Connects
    disconnect                      Disconnects
+   init                            Initializes the default settings
    status                          Shows the connection status
 
 Options:
-   -i,--init                       Initializes the default settings
    -h,--help,-?                    This help message
    -r,--realm realm                Realm
    -s,--server server              VPN server
