@@ -3,6 +3,7 @@
         * vpn_eth (check_option_argument): init is now a command and not an option
         * vpn_eth (check_option_argument): checks if the Cisco Secure Client is installed
         * README.md: configuration instructions
+        * vpn_eth (check_option_argument): added all the commands to the error message
 
 2024-02-13  Matteo Corti  <matteo@corti.li>
 

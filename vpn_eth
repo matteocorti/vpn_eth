@@ -362,7 +362,7 @@ status)
     if [ -n "${COMMAND}" ]; then
         error "Unknown command ${COMMAND}"
     else
-        error "Please specify a command (status, connect or disconnect)"
+        error "Please specify a command (connect, disconnect, init or status)"
     fi
     ;;
 
