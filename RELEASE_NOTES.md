@@ -1,1 +1,1 @@
-Bug fixes (checks for SSH connections, creates cache files and checks for oathtool)
+```init``` is now a command an not an option

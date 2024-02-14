@@ -14,7 +14,7 @@ _vpn_eth() {
     #   only the autocompletion with long options is implemented: long options are more readable and quick to enter since we are
     #   using autocompletion.
     #
-    opts="--help connect disconnect status --verbose --version --vpz --realm --user --server"
+    opts="--help connect disconnect init status --verbose --version --vpz --realm --user --server"
 
     if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]]; then
         # shellcheck disable=2207

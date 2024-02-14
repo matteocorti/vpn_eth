@@ -1,3 +1,7 @@
+2024-02-14  Matteo Corti  <matteo@corti.li>
+
+    * vpn_eth (check_option_argument): init is now a command and not an option
+
 2024-02-13  Matteo Corti  <matteo@corti.li>
 
 	* vpn_eth (cache): create cache file if not existing

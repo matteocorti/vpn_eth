@@ -3,7 +3,7 @@
 # Copyright (c) 2024 Matteo Corti <matteo.corti@ethz.ch>
 
 VPN="/opt/cisco/secureclient/bin/vpn"
-VERSION=1.0.1
+VERSION=1.1.0
 
 SETTINGS=~/.vpn_eth.rc
 VPZS_CACHE=~/.vpn_eth.vpzs
@@ -17,18 +17,19 @@ error() {
     exit
 }
 
-if [ -n "${SSH_CLIENT}" ] ; then
+if [ -n "${SSH_CLIENT}" ]; then
     error "You are connected via SSH. The keychain is not accessible."
 fi
 
-# read the settings
-if ! [ -f "${SETTINGS}" ]; then
-    touch "${SETTINGS}"
+if [ -r "${SETTINGS}" ]; then
+    # shellcheck disable=SC1090
+    . "${SETTINGS}"
 fi
 
-# shellcheck disable=SC1090
-. "${SETTINGS}"
-
+################################################################################
+# Defines a default setting
+#  $1 variable (setting) name
+#  $2 prompt
 define_setting() {
 
     VARIABLE=$1
@@ -44,8 +45,24 @@ define_setting() {
             read -r input
         fi
         echo "${VARIABLE}=${input}" >>"${SETTINGS}"
+
+    else
+
+        if [ -n "${VERBOSE}" ]; then
+            value=$(grep "^${VARIABLE}=" "${SETTINGS}" | sed 's/.*=//')
+            echo "${VARIABLE} is already defined with the value '${value}'"
+        fi
+
     fi
 
+}
+
+require_setting() {
+    variable=$1
+    eval "value=\$${variable}"
+    if [ -z "${value}" ]; then
+        error "${variable} is not defined. Please use the init command or specify the value with the corresponding option"
+    fi
 }
 
 ################################################################################
@@ -114,20 +131,29 @@ check_required_prog() {
 
 }
 
-
 ################################################################################
 # Initialize the settings
 init() {
 
-    define_setting SERVER "VPN server"
-    define_setting USER "user"
-    define_setting REALM "realm"
-    define_setting VPZ "vpz"
+    if [ -r "${SETTINGS}" ]; then
+        echo "A settings file (${SETTINGS}) already exists."
+        echo "You can edit it, or remove it before using the 'init' command to regenerate it."
+    else
 
-    # check if the password is stored
-    #radius_password=$( get_from_keychain "${USER}@${REALM}.ethz.ch" "eth_radius" "RADIUS password" )
-    get_from_keychain "${USER}" "eth_radius" "RADIUS password"
-    get_from_keychain "${USER}" "eth_otp_secret" "OTP secret"
+        # create the settings file
+        touch "${SETTINGS}"
+
+        define_setting SERVER "VPN server"
+        define_setting USER "user"
+        define_setting REALM "realm"
+        define_setting VPZ "vpz"
+
+        # check if the password is stored
+        #radius_password=$( get_from_keychain "${USER}@${REALM}.ethz.ch" "eth_radius" "RADIUS password" )
+        get_from_keychain "${USER}" "eth_radius" "RADIUS password"
+        get_from_keychain "${USER}" "eth_otp_secret" "OTP secret"
+
+    fi
 
 }
 
@@ -144,10 +170,10 @@ usage() {
     echo "Commands:"
     echo "   connect                         Connects"
     echo "   disconnect                      Disconnects"
+    echo "   init                            Initializes the default settings"
     echo "   status                          Shows the connection status"
     echo
     echo "Options:"
-    echo "   -i,--init                       Initializes the default settings"
     echo "   -h,--help,-?                    This help message"
     echo "   -r,--realm realm                Realm"
     echo "   -s,--server server              VPN server"
@@ -188,11 +214,6 @@ while true; do
     ########################################
     # Options without arguments
 
-    -i | --init)
-        init
-        shift
-        ;;
-
     -h | --help | -\?)
         usage
         ;;
@@ -217,6 +238,11 @@ while true; do
 
     disconnect)
         COMMAND=disconnect
+        shift
+        ;;
+
+    init)
+        COMMAND=init
         shift
         ;;
 
@@ -286,6 +312,10 @@ connect)
         error "cannot generate OTP code (check the OTP secret in the keychain)"
     fi
 
+    require_setting SERVER
+    require_setting VPZ
+    require_setting REALM
+
     if [ -n "${VERBOSE}" ]; then
         printf "%s@%s.ethz.ch\n%s\n%s\n" "${USER}" "${REALM}" "${radius_password}" "${otp_code}" |
             ${VPN} -s connect "https://${SERVER}/${VPZ}"
@@ -310,6 +340,11 @@ disconnect)
 
     fi
 
+    ;;
+
+init)
+
+    init
     ;;
 
 status)
