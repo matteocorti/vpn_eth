@@ -1,3 +1,5 @@
+* 2024-02-14 Version 1.2.0
+ * Short version of the commands (e.g., c for connect)
 * 2024-02-14 Version 1.1.1
  * Configuration instructions in the readme
 * 2024-02-14 Version 1.1.0

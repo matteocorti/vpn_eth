@@ -3,7 +3,7 @@
 # Copyright (c) 2024 Matteo Corti <matteo.corti@ethz.ch>
 
 VPN="/opt/cisco/secureclient/bin/vpn"
-VERSION=1.1.1
+VERSION=1.2.0
 
 SETTINGS=~/.vpn_eth.rc
 VPZS_CACHE=~/.vpn_eth.vpzs
@@ -168,10 +168,10 @@ usage() {
     echo "Usage: vpn_eth.sh [ command ] [OPTIONS]"
     echo
     echo "Commands:"
-    echo "   connect                         Connects"
-    echo "   disconnect                      Disconnects"
-    echo "   init                            Initializes the default settings"
-    echo "   status                          Shows the connection status"
+    echo "   connect,c                       Connects"
+    echo "   disconnect,d                    Disconnects"
+    echo "   init,i                          Initializes the default settings"
+    echo "   status,s                        Shows the connection status"
     echo
     echo "Options:"
     echo "   -h,--help,-?                    This help message"
@@ -232,22 +232,22 @@ while true; do
     ########################################
     # Commands
 
-    connect)
+    connect | c)
         COMMAND=connect
         shift
         ;;
 
-    disconnect)
+    disconnect | d)
         COMMAND=disconnect
         shift
         ;;
 
-    init)
+    init | i)
         COMMAND=init
         shift
         ;;
 
-    status)
+    status | s)
         COMMAND=status
         shift
         ;;

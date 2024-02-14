@@ -1,1 +1,1 @@
-Configuration instructions in the readme
+Short version of the commands (e.g., c for connect)
