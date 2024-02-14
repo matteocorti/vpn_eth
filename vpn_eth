@@ -206,6 +206,7 @@ check_option_argument() {
 }
 
 check_required_prog oathtool
+check_required_prog "${VPN}"
 
 while true; do
 

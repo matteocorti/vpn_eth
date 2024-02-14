@@ -1,10 +1,12 @@
 2024-02-14  Matteo Corti  <matteo@corti.li>
 
-    * vpn_eth (check_option_argument): init is now a command and not an option
+        * vpn_eth (check_option_argument): init is now a command and not an option
+        * vpn_eth (check_option_argument): checks if the Cisco Secure Client is installed
+        * README.md: configuration instructions
 
 2024-02-13  Matteo Corti  <matteo@corti.li>
 
-	* vpn_eth (cache): create cache file if not existing
-    * vpn_eth (error): check if connected with SSH
-    * vpn_eth (check_required_prog): checks for oathtool
+	    * vpn_eth (cache): create cache file if not existing
+        * vpn_eth (error): check if connected with SSH
+        * vpn_eth (check_required_prog): checks for oathtool
 
