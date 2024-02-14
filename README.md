@@ -33,6 +33,37 @@ Report bugs to https://github.com/matteocorti/vpn_eth/issues
 
 see [INSTALL.md](INSTALL.md) for installation instructions.
 
+### Parameters
+
+You will need the VPN server (usually sslvpn.ethz.ch) the realm and the vpz you need to connect to.
+
+These can be specified as parameters on the command line. E.g.
+
+```
+vpn_eth conncect --server sslvpn.ethz.ch --realm id --vpz id --user corti
+```
+
+or stored in the configuration file
+
+```
+$ cat ~/.vpn_eth.rc
+SERVER=sslvpn.ethz.ch
+USER=corti
+REALM=id
+VPZ=id
+```
+
+The configuration file can be generated interactively with the ```init``` command:
+
+```
+$ vpn_eth init
+Please specify the VPN server: sslvpn.ethz.ch
+Please specify the realm: id
+Please specify the vpz: id
+```
+
+### Credentials
+
 You will need your RADIUS password and your OTP secret: see  [About the «OTP Secret»](https://github.com/matteocorti/vpn_eth/wiki/OTP-Secret)
 
 Both will be stored in your macOS keychain.

@@ -3,7 +3,7 @@
 # Copyright (c) 2024 Matteo Corti <matteo.corti@ethz.ch>
 
 VPN="/opt/cisco/secureclient/bin/vpn"
-VERSION=1.1.0
+VERSION=1.1.1
 
 SETTINGS=~/.vpn_eth.rc
 VPZS_CACHE=~/.vpn_eth.vpzs
