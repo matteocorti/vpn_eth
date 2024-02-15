@@ -16,6 +16,7 @@ Commands:
    connect,c                       Connects
    disconnect,d                    Disconnects
    init,i                          Initializes the default settings
+   stats                           Shows the connection statistics
    status,s                        Shows the connection status
 
 Options:
