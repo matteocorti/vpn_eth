@@ -71,6 +71,9 @@ endif
 install:
 	cp vpn_eth /usr/local/bin
 
+install_xbar:
+	if [ -d "${HOME}"/Library/Application\ Support/xbar/plugins ] ; then cp vpn_eth "${HOME}"/Library/Application\ Support/xbar/plugins/001-vpn-eth.10s.sh ; fi
+
 clean:
 	rm -rf *~ *.bak
 

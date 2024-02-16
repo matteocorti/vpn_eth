@@ -2,6 +2,15 @@
 
 # Copyright (c) 2024 Matteo Corti <matteo.corti@ethz.ch>
 
+# Metadata allows your plugin to show up in the app, and website.
+#
+#  <xbar.title>ETH VPN</xbar.title>
+#  <xbar.version>1.3.0</xbar.version>
+#  <xbar.author>Michele Marcionelli, Matteo Corti</xbar.author>
+#  <xbar.author.github>matteocorti</xbar.author.github>
+#  <xbar.desc>Shows the status of the ETH VPN connection</xbar.desc>
+#  <xbar.dependencies>vpn_eth</xbar.dependencies>
+
 VPN="/opt/cisco/secureclient/bin/vpn"
 VERSION=1.3.0
 
@@ -209,184 +218,246 @@ check_option_argument() {
 check_required_prog oathtool
 check_required_prog "${VPN}"
 
-while true; do
 
-    case "$1" in
+PWD=$(pwd)
+if [ "${PWD}" = "${HOME}/Library/Application Support/xbar/plugins" ]; then
 
-    ########################################
-    # Options without arguments
+    # menu item handlers
+    if [ "$1" = "turn_vpn_off" ]; then
+        echo disconnect >> $d
+        ${VPN} disconnect
+    elif [ "$1" = "turn_vpn_on" ]; then
+        
+        # get the credentials from macOS keychain
+        get_from_keychain "${USER}" "eth_radius" "RADIUS password"
+        radius_password="${password}"
+        get_from_keychain "${USER}" "eth_otp_secret" "OTP secret"
+        otp_secret="${password}"
+        otp_code=$(oathtool --totp=sha1 --time-step-size=30 -b "${otp_secret}")
+        
+        printf "%s@%s.ethz.ch\n%s\n%s\n" "${USER}" "${REALM}" "${radius_password}" "${otp_code}" |
+            ${VPN} -s connect "https://${SERVER}/${VPZ}" > /dev/null 2>&1
+        
+    fi;
 
-    -h | --help | -\?)
-        usage
+    
+    # Running as an xbar plugin
+
+    stats=$( "${VPN}" stats );
+
+    # set isVpnOn (connected => true; disconnected => false)
+    if echo "$stats" | grep "Connection State" | grep -v Management | grep -q Connected; then
+        isVpnOn=true;
+    else
+        isVpnOn=false;
+    fi;
+
+    # menu title
+    $isVpnOn && echo "🟢 VPN" || echo "⚪️ VPN";
+
+    # separator
+    echo "---";
+
+    # menu items
+    if $isVpnOn; then
+        echo "Connected to https://$SERVER/$VPZ";
+        echo "As $USER@$REALM.ethz.ch";
+        echo "Since $(echo "$stats" | grep Duration | awk '{print $2}' | sed 's/:..$//') (hh:mm)";
+        echo "$stats" | grep -E 'Client Address|Bytes (Sent|Received)|Prot|Cipher' | \
+            sed 's/^ *//; s/:  */: /';
+        echo "Disconnect now | bash='$0' param1=turn_vpn_off terminal=false";
+        echo "Refresh statistics | refresh=true";
+    else
+        echo "Disconnected";
+        echo "Connect now | bash='$0' param1=turn_vpn_on terminal=false";
+    fi
+
+
+else
+
+    while true; do
+
+        case "$1" in
+
+        ########################################
+        # Options without arguments
+
+        -h | --help | -\?)
+            usage
+            ;;
+
+        --version)
+            echo "vpn_eth version ${VERSION}"
+            exit
+            ;;
+
+        -v | --verbose)
+            VERBOSE=1
+            shift
+            ;;
+
+        ########################################
+        # Commands
+
+        connect | c)
+            COMMAND=connect
+            shift
+            ;;
+
+        disconnect | d)
+            COMMAND=disconnect
+            shift
+            ;;
+
+        init | i)
+            COMMAND=init
+            shift
+            ;;
+
+        status | s)
+            COMMAND=status
+            shift
+            ;;
+
+        stats)
+            COMMAND=stats
+            shift
+            ;;
+
+        ########################################
+        # Options with one argument
+
+        -r | --realm)
+            check_option_argument '-r,--realm' "$2"
+            REALM="$2"
+            shift 2
+            ;;
+
+        -s | --server)
+            check_option_argument '-s,--server' "$2"
+            SERVER="$2"
+            shift 2
+            ;;
+
+        -u | --user)
+            check_option_argument '-u,--user' "$2"
+            USER="$2"
+            shift 2
+            ;;
+
+        -z | --vpz)
+            check_option_argument '-z,--vpz' "$2"
+            VPZ="$2"
+            shift 2
+            ;;
+
+        ########################################
+        # Special
+        --)
+            shift
+            break
+            ;;
+
+        *)
+            if [ -n "$1" ]; then
+                error "invalid option or command: '${1}'"
+            fi
+            break
+            ;;
+        esac
+
+    done
+
+    cache "${VPZS_CACHE}" "${VPZ}"
+    cache "${REALMS_CACHE}" "${REALM}"
+
+    case "${COMMAND}" in
+
+    connect)
+
+        # get the credentials from macOS keychain
+        get_from_keychain "${USER}" "eth_radius" "RADIUS password"
+        radius_password="${password}"
+        get_from_keychain "${USER}" "eth_otp_secret" "OTP secret"
+        otp_secret="${password}"
+
+        if ! otp_code=$(oathtool --totp=sha1 --time-step-size=30 -b "${otp_secret}" 2>/dev/null); then
+            error "cannot generate OTP code (check the OTP secret in the keychain)"
+        fi
+
+        require_setting SERVER
+        require_setting VPZ
+        require_setting REALM
+
+        if [ -n "${VERBOSE}" ]; then
+            printf "%s@%s.ethz.ch\n%s\n%s\n" "${USER}" "${REALM}" "${radius_password}" "${otp_code}" |
+                ${VPN} -s connect "https://${SERVER}/${VPZ}"
+        else
+            printf "%s@%s.ethz.ch\n%s\n%s\n" "${USER}" "${REALM}" "${radius_password}" "${otp_code}" |
+                ${VPN} -s connect "https://${SERVER}/${VPZ}" 2>&1 |
+                grep 'error:' |
+                sed 's/^.*>> e/E/'
+        fi
+
         ;;
 
-    --version)
-        echo "vpn_eth version ${VERSION}"
-        exit
+    disconnect)
+
+        if ${VPN} status | grep -q Connected; then
+
+            if [ -n "${VERBOSE}" ]; then
+                ${VPN} disconnect
+            else
+                ${VPN} disconnect >/dev/null
+            fi
+
+        fi
+
         ;;
 
-    -v | --verbose)
-        VERBOSE=1
-        shift
+    init)
+
+        init
         ;;
 
-    ########################################
-    # Commands
+    status)
 
-    connect | c)
-        COMMAND=connect
-        shift
-        ;;
+        if [ -n "${VERBOSE}" ]; then
+            ${VPN} status
+        else
+            ${VPN} status |
+                grep 'state:' |
+                tail -n 1 |
+                sed 's/^.*: //'
+        fi
 
-    disconnect | d)
-        COMMAND=disconnect
-        shift
-        ;;
-
-    init | i)
-        COMMAND=init
-        shift
-        ;;
-
-    status | s)
-        COMMAND=status
-        shift
         ;;
 
     stats)
-        COMMAND=stats
-        shift
-        ;;
 
-    ########################################
-    # Options with one argument
+        if [ -n "${VERBOSE}" ]; then
+            ${VPN} stats
+        else
 
-    -r | --realm)
-        check_option_argument '-r,--realm' "$2"
-        REALM="$2"
-        shift 2
-        ;;
+            # try to leave only the essential information
 
-    -s | --server)
-        check_option_argument '-s,--server' "$2"
-        SERVER="$2"
-        shift 2
-        ;;
+            ${VPN} stats |
+                grep '[a-zA-Z0-9]' |
+                grep '^[[:blank:]]' |
+                sed 's/^[[:blank:]]*//'
 
-    -u | --user)
-        check_option_argument '-u,--user' "$2"
-        USER="$2"
-        shift 2
-        ;;
+        fi
 
-    -z | --vpz)
-        check_option_argument '-z,--vpz' "$2"
-        VPZ="$2"
-        shift 2
-        ;;
-
-    ########################################
-    # Special
-    --)
-        shift
-        break
         ;;
 
     *)
-        if [ -n "$1" ]; then
-            error "invalid option or command: '${1}'"
+        if [ -n "${COMMAND}" ]; then
+            error "Unknown command ${COMMAND}"
+        else
+            error "Please specify a command (connect, disconnect, init or status)"
         fi
-        break
         ;;
+
     esac
 
-done
-
-cache "${VPZS_CACHE}" "${VPZ}"
-cache "${REALMS_CACHE}" "${REALM}"
-
-case "${COMMAND}" in
-
-connect)
-
-    # get the credentials from macOS keychain
-    get_from_keychain "${USER}" "eth_radius" "RADIUS password"
-    radius_password="${password}"
-    get_from_keychain "${USER}" "eth_otp_secret" "OTP secret"
-    otp_secret="${password}"
-
-    if ! otp_code=$(oathtool --totp=sha1 --time-step-size=30 -b "${otp_secret}" 2>/dev/null); then
-        error "cannot generate OTP code (check the OTP secret in the keychain)"
-    fi
-
-    require_setting SERVER
-    require_setting VPZ
-    require_setting REALM
-
-    if [ -n "${VERBOSE}" ]; then
-        printf "%s@%s.ethz.ch\n%s\n%s\n" "${USER}" "${REALM}" "${radius_password}" "${otp_code}" |
-            ${VPN} -s connect "https://${SERVER}/${VPZ}"
-    else
-        printf "%s@%s.ethz.ch\n%s\n%s\n" "${USER}" "${REALM}" "${radius_password}" "${otp_code}" |
-            ${VPN} -s connect "https://${SERVER}/${VPZ}" 2>&1 |
-            grep 'error:' |
-            sed 's/^.*>> e/E/'
-    fi
-
-    ;;
-
-disconnect)
-
-    if ${VPN} status | grep -q Connected; then
-
-        if [ -n "${VERBOSE}" ]; then
-            ${VPN} disconnect
-        else
-            ${VPN} disconnect >/dev/null
-        fi
-
-    fi
-
-    ;;
-
-init)
-
-    init
-    ;;
-
-status)
-
-    if [ -n "${VERBOSE}" ]; then
-        ${VPN} status
-    else
-        ${VPN} status | grep 'state:' | tail -n 1 | sed 's/^.*: //'
-    fi
-
-    ;;
-
-stats)
-
-    if [ -n "${VERBOSE}" ]; then
-        ${VPN} stats
-    else
-
-        # try to leave only the essential information
-
-        ${VPN} stats |
-            grep '[a-zA-Z0-9]' |
-            grep '^[[:blank:]]' |
-            sed 's/^[[:blank:]]*//'
-
-    fi
-
-    ;;
-
-*)
-    if [ -n "${COMMAND}" ]; then
-        error "Unknown command ${COMMAND}"
-    else
-        error "Please specify a command (connect, disconnect, init or status)"
-    fi
-    ;;
-
-esac
+fi
