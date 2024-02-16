@@ -25,10 +25,12 @@ XBAR=
 error() {
     if [ -z "${XBAR}" ] ; then
         echo "Error: $1" 1>&2
-        exit
     else
-        echo "Error"
+        echo "Error | color=red"
+        echo "---";
+        echo "$1"
     fi
+    exit
 }
 
 if [ -n "${SSH_CLIENT}" ]; then
@@ -228,6 +230,8 @@ PWD=$(pwd)
 if [ "${PWD}" = "${HOME}/Library/Application Support/xbar/plugins" ]; then
 
     XBAR=1
+
+    # see https://github.com/matryer/xbar-plugins/blob/main/CONTRIBUTING.md
     
     # menu item handlers
     if [ "$1" = "turn_vpn_off" ]; then
