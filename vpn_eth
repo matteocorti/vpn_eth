@@ -288,6 +288,7 @@ if [ "${PWD}" = "${HOME}/Library/Application Support/xbar/plugins" ]; then
         isOnline=false
     fi
 
+    # menu title
     if "${isOnline}"; then
         if "${isVpnOn}"; then
             echo "VPN | color=green"
@@ -297,9 +298,6 @@ if [ "${PWD}" = "${HOME}/Library/Application Support/xbar/plugins" ]; then
     else
         echo "VPN | color=red"
     fi
-
-    # menu title
-    ${isVpnOn} && echo "VPN ${REALM} | color=green" || echo "VPN | color=${color}"
 
     # separator
     echo "---"
