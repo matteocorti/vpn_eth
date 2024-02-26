@@ -44,11 +44,9 @@ if [ -r "${SETTINGS}" ]; then
 
     # shellcheck disable=SC1090
     . "${SETTINGS}"
-    eval "REALM=\$REALM1"
-    eval "VPZ=\$VPZ1"
+    eval 'REALM=$REALM1'
+    eval 'VPZ=$VPZ1'
 fi
-
-
 
 ################################################################################
 # Defines a default setting
@@ -277,29 +275,29 @@ if [ "${PWD}" = "${HOME}/Library/Application Support/xbar/plugins" ]; then
     fi
 
     # shellcheck disable=SC2154
-    if "${XBARDarkMode}" ; then
+    if "${XBARDarkMode}"; then
         color='white'
     else
         color='gray'
-    fi        
+    fi
 
- 	# set isOnline
- 	if ping -Q -o -t 2 "${SERVER}"> /dev/null 2>&1; then
- 		isOnline=true
- 	else
- 		isOnline=false
- 	fi
-    
+    # set isOnline
+    if ping -Q -o -t 2 "${SERVER}" >/dev/null 2>&1; then
+        isOnline=true
+    else
+        isOnline=false
+    fi
+
     if "${isOnline}"; then
- 		if "${isVpnOn}"; then
+        if "${isVpnOn}"; then
             echo "VPN | color=green"
- 		else
- 			echo "VPN | color=${color}"
- 		fi
- 	else
- 		echo "VPN | color=red"
- 	fi
-    
+        else
+            echo "VPN | color=${color}"
+        fi
+    else
+        echo "VPN | color=red"
+    fi
+
     # menu title
     ${isVpnOn} && echo "VPN ${REALM} | color=green" || echo "VPN | color=${color}"
 
@@ -319,7 +317,7 @@ if [ "${PWD}" = "${HOME}/Library/Application Support/xbar/plugins" ]; then
         echo "Disconnect | bash='$0' param1=turn_vpn_off terminal=false refresh=true"
         echo "Refresh statistics | refresh=true"
     else
-        if ping -Q -o -t 2 "${SERVER}"> /dev/null 2>&1; then
+        if ping -Q -o -t 2 "${SERVER}" >/dev/null 2>&1; then
             echo "🔴 VPN disconnected"
             for varRealm in $(set | grep '^REALM.='); do
                 param2=$(echo "${varRealm}" | head -c 6 | tail -c 1)
