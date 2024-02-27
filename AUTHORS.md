@@ -2,4 +2,5 @@
 
 Maintainer: [Matteo Corti](https://github.com/matteocorti) <[matteo.corti@ethz.ch](mailto:matteo.corti@ethz.ch)>
 
-* Many thanks to Michele Marcionelli for the first version of the script
+* Many thanks to Michele Marcionelli for the first version of the
+  script and for the implementation as an xbar plugin
