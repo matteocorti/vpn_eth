@@ -1,3 +1,5 @@
+* 2024-02-27 Version 2.0.0
+ * xbar support (thanks to Michele Marcionelli)
 * 2024-02-15 Version 1.3.0
  * Added the stats command
 * 2024-02-14 Version 1.2.0

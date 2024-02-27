@@ -12,7 +12,7 @@
 #  <xbar.dependencies>vpn_eth</xbar.dependencies>
 
 VPN="/opt/cisco/secureclient/bin/vpn"
-VERSION=1.3.0
+VERSION=2.0.0
 
 SETTINGS=~/.vpn_eth.rc
 VPZS_CACHE=~/.vpn_eth.vpzs

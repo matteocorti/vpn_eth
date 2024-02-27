@@ -1,1 +1,1 @@
-Added the stats command
+Can be used as an xbar plugin
