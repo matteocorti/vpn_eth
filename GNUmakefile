@@ -74,6 +74,9 @@ install:
 install_xbar:
 	if [ -d "${HOME}"/Library/Application\ Support/xbar/plugins ] ; then cp vpn_eth "${HOME}"/Library/Application\ Support/xbar/plugins/001-vpn-eth.10s.sh ; fi
 
+install_conf:
+	cp vpn_eth.rc.sample ~/.vpn_eth.rc
+
 clean:
 	rm -rf *~ *.bak
 

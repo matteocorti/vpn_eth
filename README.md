@@ -44,14 +44,16 @@ These can be specified as parameters on the command line. E.g.
 vpn_eth conncect --server sslvpn.ethz.ch --realm id --vpz id --user corti
 ```
 
-or stored in the configuration file
+or stored in the configuration file. For example (change the username):
 
 ```
 $ cat ~/.vpn_eth.rc
 SERVER=sslvpn.ethz.ch
-USER=corti
-REALM=id
-VPZ=id
+USER=username
+REALM1=staff-net
+VPZ1=staff-net
+REALM2=student-net
+VPZ2=student-net
 ```
 
 The configuration file can be generated interactively with the ```init``` command:
@@ -61,6 +63,12 @@ $ vpn_eth init
 Please specify the VPN server: sslvpn.ethz.ch
 Please specify the realm: id
 Please specify the vpz: id
+```
+
+The sample configuration file can be installed with
+
+```
+make install_conf
 ```
 
 ### Credentials

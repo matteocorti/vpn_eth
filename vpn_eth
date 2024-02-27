@@ -294,7 +294,7 @@ if [ "${PWD}" = "${HOME}/Library/Application Support/xbar/plugins" ]; then
             fi
         else
             # shellcheck disable=SC2154
-            if "${XBARDarkMode}"; then            
+            if "${XBARDarkMode}"; then
                 echo "VPN | color='red'"
             else
                 echo "VPN | color='gray'"

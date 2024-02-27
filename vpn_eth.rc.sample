@@ -1,0 +1,6 @@
+SERVER=sslvpn.ethz.ch
+USER=
+REALM1=staff-net
+VPZ1=staff-net
+REALM2=student-net
+VPZ2=student-net
