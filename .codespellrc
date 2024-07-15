@@ -1,5 +1,5 @@
 [codespell]
 check-filenames =
 check-hidden =
-skip = vpn_eth-*,.git,*~
+skip = .git
 ignore-words = .codespell-ignore

@@ -85,6 +85,13 @@ Please specify RADIUS password:
 Please specify OTP secret:
 ```
 
+## xbar Plugin
+
+The script can be used as an [xbar](https://xbarapp.com) plugin:
+
+![xbar](doc/xbar.png)
+
+[Install as an xbar plugin](xbar://app.xbarapp.com/openPlugin?path=./vpn_eth.10s.sh) or follow the manual [installation instructions](INSTALL.md).
 
 ## Documentation
 
