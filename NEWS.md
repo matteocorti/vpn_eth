@@ -1,3 +1,5 @@
+* 2025-03-25 Version 2.1.0
+ * Bug fix by the creation of the default settings with "init"
 * 2024-02-27 Version 2.0.0
  * xbar support (thanks to Michele Marcionelli)
 * 2024-02-15 Version 1.3.0

@@ -12,7 +12,7 @@
 #  <xbar.dependencies>vpn_eth</xbar.dependencies>
 
 VPN="/opt/cisco/secureclient/bin/vpn"
-VERSION=2.0.0
+VERSION=2.1.0
 
 SETTINGS=~/.vpn_eth.rc
 VPZS_CACHE=~/.vpn_eth.vpzs
@@ -166,9 +166,9 @@ init() {
         touch "${SETTINGS}"
 
         define_setting SERVER "VPN server"
-        define_setting USER "user"
-        define_setting REALM "realm"
-        define_setting VPZ "vpz"
+        define_setting USER1 "user"
+        define_setting REALM1 "realm"
+        define_setting VPZ1 "vpz"
 
         # check if the password is stored
         #radius_password=$( get_from_keychain "${USER}@${REALM}.ethz.ch" "eth_radius" "RADIUS password" )

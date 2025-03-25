@@ -1,7 +1,7 @@
 
 # Copyright
 
-* Copyright &copy; 2024 ETH Zurich
+* Copyright &copy; 2024-2025 ETH Zurich
 
 with the following individuals added to the list of contributing authors
 
