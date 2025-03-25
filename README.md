@@ -1,6 +1,6 @@
 # vpn\_eth
 
- &copy; Matteo Corti, ETH Zurich, 2024.
+ &copy; Matteo Corti, ETH Zurich, 2024-2025.
 
  see [AUTHORS.md](AUTHORS.md) for the complete list of contributors
 
