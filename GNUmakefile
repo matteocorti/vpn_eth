@@ -50,7 +50,7 @@ version_check:
 	echo "Version check: OK"
 
 copyright_check:
-	grep -q "Copyright (c) $(YEAR) Matteo Corti <matteo.corti@ethz.ch>" vpn_eth
+	grep -q "Copyright (c) 2024-$(YEAR) Matteo Corti <matteo.corti@ethz.ch>" vpn_eth
 	echo "Copyright year check: OK"
 
 SHELLCHECK := $(shell command -v shellcheck 2> /dev/null)

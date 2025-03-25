@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2024 Matteo Corti <matteo.corti@ethz.ch>
+# Copyright (c) 2024-2025 Matteo Corti <matteo.corti@ethz.ch>
 
 # Metadata allows your plugin to show up in the app, and website.
 #
