@@ -1,1 +1,1 @@
-Bug fix by the creation of the default settings with "init"
+Added an option to flush AnyConnect firewall rules

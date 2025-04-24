@@ -1,3 +1,7 @@
+2025-04-24  Matteo Corti  <matteo@corti.li>
+
+        * vpn_eth: added an option to flush AnyConnect firewall rules (and enable internet access)
+
 2025-03-25  Matteo Corti  <matteo@corti.li>
 
         * vpn_eth: bug fix by the creation of the default settings with "init"

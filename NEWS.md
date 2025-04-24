@@ -1,3 +1,5 @@
+* 2025-04-24 Version 2.2.0
+ * Added an option to flush AnyConnect firewall rules
 * 2025-03-25 Version 2.1.0
  * Bug fix by the creation of the default settings with "init"
 * 2024-02-27 Version 2.0.0

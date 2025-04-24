@@ -12,7 +12,7 @@
 #  <xbar.dependencies>vpn_eth</xbar.dependencies>
 
 VPN="/opt/cisco/secureclient/bin/vpn"
-VERSION=2.1.0
+VERSION=2.2.0
 
 SETTINGS=~/.vpn_eth.rc
 VPZS_CACHE=~/.vpn_eth.vpzs
@@ -198,6 +198,7 @@ usage() {
     echo
     echo "Options:"
     echo "   -h,--help,-?                    This help message"
+    echo "   -f,--flush-pf                   Removes AnyConnect local firewall rules"
     echo "   -r,--realm realm                Realm"
     echo "   -s,--server server              VPN server"
     echo "   -u,--user user                  User"
@@ -338,6 +339,10 @@ else
         ########################################
         # Options without arguments
 
+        -f | --flush-pf)
+            FLUSH=1
+            ;;
+
         -h | --help | -\?)
             usage
             ;;
@@ -453,6 +458,10 @@ else
                 ${VPN} -s connect "https://${SERVER}/${VPZ}" 2>&1 |
                 grep 'error:' |
                 sed 's/^.*>> e/E/'
+        fi
+
+        if [ -n "${FLUSH}" ] ; then
+            sudo pfctl -a cisco.anyconnect.vpn -F rules > /dev/null 2>&1
         fi
 
         ;;
