@@ -19,3 +19,6 @@ if [ "${ANSWER}" = "y" ]; then
     gh release create "v${VERSION}" --title "update.sh-${VERSION}" --notes-file RELEASE_NOTES.md "vpn_eth-${VERSION}.tar.gz" "vpn_eth-${VERSION}.tar.bz2"
 
 fi
+
+# get the new tag
+git pull
