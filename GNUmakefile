@@ -13,7 +13,7 @@ dist: version_check formatting_check copyright_check shellcheck
 # see https://superuser.com/questions/259703/get-mac-tar-to-stop-putting-filenames-in-tar-archives
 	export COPY_EXTENDED_ATTRIBUTES_DISABLE=1; \
 	export COPYFILE_DISABLE=1; \
-	tar cfz $(DIST_DIR).tar.gz  $(DIST_DIR)
+	tar cfz $(DIST_DIR).tar.gz  $(DIST_DIR); \
 	tar cfj $(DIST_DIR).tar.bz2 $(DIST_DIR)
 
 CODESPELL := $(shell command -v codespell 2> /dev/null )
@@ -46,11 +46,13 @@ else
 endif
 
 version_check:
-	grep -q "VERSION\ *=\ *[\'\"]*$(VERSION)" vpn_eth
+	grep -q "VERSION *= *[\'\"]*$(VERSION)" vpn_eth
+	grep -q "<xbar.version>$(VERSION)<" vpn_eth
 	echo "Version check: OK"
 
 copyright_check:
 	grep -q "Copyright (c) 2024-$(YEAR) Matteo Corti <matteo.corti@ethz.ch>" vpn_eth
+	grep -q "Copyright (c) 2024-$(YEAR) Michele Marcionelli <mm@ethz.ch>" vpn_eth
 	echo "Copyright year check: OK"
 
 SHELLCHECK := $(shell command -v shellcheck 2> /dev/null)
@@ -59,7 +61,7 @@ shellcheck:
 ifndef SHELLCHECK
 	echo "No shellcheck installed: skipping test"
 else
-	if shellcheck --help 2>&1 | grep -q -- '-o\ ' ; then shellcheck -o all $(SHELLCHECK_FILES) ; else shellcheck $(SHELLCHECK_FILES) ; fi
+	if shellcheck --help 2>&1 | grep -q -- '-o ' ; then shellcheck -o all $(SHELLCHECK_FILES) ; else shellcheck $(SHELLCHECK_FILES) ; fi
 endif
 
 COMPLETIONS_DIR := $(shell pkg-config --variable=completionsdir bash-completion)
@@ -73,6 +75,9 @@ install:
 
 install_xbar:
 	if [ -d "${HOME}"/Library/Application\ Support/xbar/plugins ] ; then cp vpn_eth "${HOME}"/Library/Application\ Support/xbar/plugins/001-vpn-eth.10s.sh ; fi
+
+install_swiftbar:
+	if [ -f "${HOME}"/Library/Preferences/com.ameba.SwiftBar.plist ] ; then cp vpn_eth `plutil -extract PluginDirectory raw ${HOME}/Library/Preferences/com.ameba.SwiftBar.plist -o -`/vpn_eth.10s.sh ; fi
 
 install_conf:
 	cp vpn_eth.rc.sample ~/.vpn_eth.rc

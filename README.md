@@ -1,6 +1,6 @@
 # vpn\_eth
 
- &copy; Matteo Corti, ETH Zurich, 2024-2025.
+&copy; Matteo Corti & Michele Marcionelli, ETH Zurich, 2024-2025.
 
  see [AUTHORS.md](AUTHORS.md) for the complete list of contributors
 
@@ -21,11 +21,12 @@ Commands:
 
 Options:
    -h,--help,-?                    This help message
-   -r,--realm realm                Realm
    -s,--server server              VPN server
-   -u,--user user                  User
-   -v,--version                    Prints the script version number
+   -r,--realm realm                Realm
    -z,--vpz vpz                    VPZ
+   -u,--user user                  User
+   -f,--flush-pf                   Removes AnyConnect local firewall rules
+   -v,--version                    Prints the script version number
 
 Report bugs to https://github.com/matteocorti/vpn_eth/issues
 ```
@@ -85,13 +86,17 @@ Please specify RADIUS password:
 Please specify OTP secret:
 ```
 
-## xbar Plugin
+## xbar and SwiftBar Plugin
 
-The script can be used as an [xbar](https://xbarapp.com) plugin:
+The script can be used as an [xbar](https://xbarapp.com) or a [SwiftBar](https://github.com/swiftbar/SwiftBar) plugin.
 
-![xbar](doc/xbar.png)
+### xbar
 
 [Install as an xbar plugin](xbar://app.xbarapp.com/openPlugin?path=./vpn_eth.10s.sh) or follow the manual [installation instructions](INSTALL.md).
+
+### SwiftBar
+
+Follow the manual [installation instructions](INSTALL.md).
 
 ## Documentation
 

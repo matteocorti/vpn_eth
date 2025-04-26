@@ -1,3 +1,5 @@
+* 2025-04-26 Version 2.3.0
+ * Added support for the SwiftBar plugin
 * 2025-04-24 Version 2.2.0
  * Added an option to flush AnyConnect firewall rules
 * 2025-03-25 Version 2.1.0

@@ -1,32 +1,38 @@
 #!/bin/sh
 
 # Copyright (c) 2024-2025 Matteo Corti <matteo.corti@ethz.ch>
+# Copyright (c) 2024-2025 Michele Marcionelli <mm@ethz.ch>
 
 # Metadata allows your plugin to show up in the app, and website.
 #
 #  <xbar.title>ETH VPN</xbar.title>
-#  <xbar.version>1.3.0</xbar.version>
-#  <xbar.author>Michele Marcionelli, Matteo Corti</xbar.author>
-#  <xbar.author.github>matteocorti</xbar.author.github>
+#  <xbar.version>2.3.0</xbar.version>
+#  <xbar.author>Matteo Corti, Michele Marcionelli</xbar.author>
+#  <xbar.author.github>matteocorti, mmdevl</xbar.author.github>
 #  <xbar.desc>Shows the status of the ETH VPN connection</xbar.desc>
 #  <xbar.dependencies>vpn_eth</xbar.dependencies>
+#
+#  <swiftbar.hideAbout>true</swiftbar.hideAbout>
+#  <swiftbar.hideRunInTerminal>true</swiftbar.hideRunInTerminal>
+#  <swiftbar.hideLastUpdated>true</swiftbar.hideLastUpdated>
+#  <swiftbar.hideDisablePlugin>true</swiftbar.hideDisablePlugin>
+#  <swiftbar.hideSwiftBar>true</swiftbar.hideSwiftBar>
 
 VPN="/opt/cisco/secureclient/bin/vpn"
-VERSION=2.2.0
+VERSION=2.3.0
 
 SETTINGS=~/.vpn_eth.rc
 VPZS_CACHE=~/.vpn_eth.vpzs
 REALMS_CACHE=~/.vpn_eth.realms
-XBAR=
 
 ################################################################################
 # Prints an error message and exits
 #  $1 error message
 error() {
-    if [ -z "${XBAR}" ]; then
+    if [ -z "${MENUBAR}" ]; then
         echo "Error: $1" 1>&2
     else
-        echo "Error | color=red"
+        echo "Error | color=${COLOR_ERROR}"
         echo "---"
         echo "$1"
         if [ -n "$2" ]; then
@@ -198,12 +204,12 @@ usage() {
     echo
     echo "Options:"
     echo "   -h,--help,-?                    This help message"
-    echo "   -f,--flush-pf                   Removes AnyConnect local firewall rules"
-    echo "   -r,--realm realm                Realm"
     echo "   -s,--server server              VPN server"
-    echo "   -u,--user user                  User"
-    echo "   -v,--version                    Prints the script version number"
+    echo "   -r,--realm realm                Realm"
     echo "   -z,--vpz vpz                    VPZ"
+    echo "   -u,--user user                  User"
+    echo "   -f,--flush-pf                   Removes AnyConnect local firewall rules"
+    echo "   -v,--version                    Prints the script version number"
     echo
     echo "Report bugs to https://github.com/matteocorti/vpn_eth/issues"
     echo
@@ -232,10 +238,46 @@ check_option_argument() {
 check_required_prog oathtool
 check_required_prog "${VPN}"
 
-PWD=$(pwd)
-if [ "${PWD}" = "${HOME}/Library/Application Support/xbar/plugins" ]; then
+# check if this script is running in xbar or SwiftBar
+MENUBAR=
+# check if this script has been started from SwiftBar or xbar
+# shellcheck disable=SC2312
+if ps -p "$(ps -p $$ -o ppid=)" -o comm= | grep -q '/xbar$'; then
+    MENUBAR=1 # xbar
+elif ps -p "$(ps -p $$ -o ppid=)" -o comm= | grep -q '/SwiftBar$'; then
+    MENUBAR=2 # SwiftBar
+fi
 
-    XBAR=1
+# default color definitions
+COLORMODE="${COLORMODE:-true}"
+if "${XBARDarkMode:-false}" || [ "${OS_APPEARANCE:-Light}" = "Dark" ]; then # dark mode
+    if [ "${COLORMODE}" = "true" ]; then
+        COLOR_VPN_ON="${COLOR_VPN_ON:-#80ff80}"
+        COLOR_VPN_OFF="${COLOR_VPN_OFF:-#cccccc}"
+        COLOR_OFFLINE="${COLOR_OFFLINE:-#999999}"
+        COLOR_ERROR="${COLOR_ERROR:-#ff4d4d}"
+    else
+        COLOR_VPN_ON="${COLOR_VPN_ON:-#ffffff}"
+        COLOR_VPN_OFF="${COLOR_VPN_OFF:-#cccccc}"
+        COLOR_OFFLINE="${COLOR_OFFLINE:-#999999}"
+        COLOR_ERROR="${COLOR_ERROR:-#ff4d4d}"
+    fi
+else # light mode
+    if [ "${COLORMODE}" = "true" ]; then
+        COLOR_VPN_ON="${COLOR_VPN_ON:-#80ff80}"
+        COLOR_VPN_OFF="${COLOR_VPN_OFF:-#ffffff}"
+        COLOR_OFFLINE="${COLOR_OFFLINE:-#999999}"
+        COLOR_ERROR="${COLOR_ERROR:-#ff4d4d}"
+    else
+        COLOR_VPN_ON="${COLOR_VPN_ON:-#ffffff}"
+        COLOR_VPN_OFF="${COLOR_VPN_OFF:-#ffffff}"
+        COLOR_OFFLINE="${COLOR_OFFLINE:-#999999}"
+        COLOR_ERROR="${COLOR_ERROR:-#ff4d4d}"
+    fi
+fi
+
+PWD=$(pwd)
+if [ -n "${MENUBAR}" ]; then
 
     # see https://github.com/matryer/xbar-plugins/blob/main/CONTRIBUTING.md
 
@@ -283,23 +325,23 @@ if [ "${PWD}" = "${HOME}/Library/Application Support/xbar/plugins" ]; then
     fi
 
     # menu title
+    # shellcheck disable=SC2249
     if "${isVpnOn}"; then
-        echo "VPN | color=green"
+        case "${MENUBAR}" in
+            1) echo "VPN | color=${COLOR_VPN_ON}";;
+            2) echo ":lock.shield.fill: | sfsize=18 sfcolor=${COLOR_VPN_ON}";;
+        esac
     else
         if "${isOnline}"; then
-            # shellcheck disable=SC2154
-            if "${XBARDarkMode}"; then
-                echo "VPN | color='white'"
-            else
-                echo "VPN | color='gray'"
-            fi
+            case "${MENUBAR}" in
+                1) echo "VPN | color=${COLOR_VPN_OFF}";;
+                2) echo ":shield.lefthalf.fill: | sfsize=18 sfcolor=${COLOR_VPN_OFF}";;
+            esac
         else
-            # shellcheck disable=SC2154
-            if "${XBARDarkMode}"; then
-                echo "VPN | color='red'"
-            else
-                echo "VPN | color='gray'"
-            fi
+            case "${MENUBAR}" in
+                1) echo "VPN | color=${COLOR_OFFLINE}";;
+                2) echo ":shield.slash.fill: | sfsize=18 sfcolor=${COLOR_OFFLINE}";;
+            esac
         fi
     fi
 
@@ -327,6 +369,39 @@ if [ "${PWD}" = "${HOME}/Library/Application Support/xbar/plugins" ]; then
             done
         else
             echo "⚠️  no internet connection"
+        fi
+    fi
+
+    # version
+    echo "---"
+    # shellcheck disable=SC2249
+    case "${MENUBAR}" in
+        1) echo "vpn_eth version ${VERSION}";;
+        2) echo ":shield.lefthalf.fill: vpn_eth version ${VERSION} | sfsize=18";;
+    esac
+    # check for new version about every 4 hours
+    latest_version_file="/tmp/eth_vpn_version"
+    # shellcheck disable=SC2312
+    if [ ! -f "${latest_version_file}" ] || [ -n "$(find "${latest_version_file}" -mmin +240)" ]; then
+        if latest_version=$(curl -fs https://raw.githubusercontent.com/matteocorti/vpn_eth/refs/heads/main/VERSION); then
+            echo "${latest_version}" > "${latest_version_file}"
+        fi
+    fi
+    latest_version=$(cat "${latest_version_file}")
+    if [ -z "${latest_version}" ]; then
+        # shellcheck disable=SC2249
+        case "${MENUBAR}" in
+            1) echo "⚠️  could not check for updates | color=orange";;
+            2) echo ":exclamationmark.triangle.fill: could not check for updates | sfcolor=orange";;
+        esac
+    elif [ "${VERSION}" != "${latest_version}" ]; then
+        # shellcheck disable=SC2312
+        if [ "$({ echo "${VERSION}"; echo "${latest_version}"; } | sort -V | tail -n 1)" = "${latest_version}" ]; then
+            # shellcheck disable=SC2249
+            case "${MENUBAR}" in
+                1) echo "⚠️  new version ${latest_version} available | color=orange";;
+                2) echo ":star.fill: new version ${latest_version} available | sfcolor=orange";;
+            esac
         fi
     fi
 

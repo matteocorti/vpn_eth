@@ -1,3 +1,7 @@
+2025-04-26  Michele Marcionelli  <michele@marcionelli.ch>
+
+        * vpn_eth: Added support for the SwiftBar plugin
+
 2025-04-24  Matteo Corti  <matteo@corti.li>
 
         * vpn_eth: added an option to flush AnyConnect firewall rules (and enable internet access)

@@ -1,1 +1,1 @@
-Added an option to flush AnyConnect firewall rules
+Added support for the SwiftBar plugin
