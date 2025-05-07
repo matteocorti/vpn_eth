@@ -1,3 +1,7 @@
+2025-05-07  Matteo Corti  <matteo@corti.li>
+
+        * vpn_eth (get_from_keychain): SSH is not OK only when accessing the keychain (but is OK for disconnect)
+
 2025-04-26  Michele Marcionelli  <michele@marcionelli.ch>
 
         * vpn_eth: Added support for the SwiftBar plugin

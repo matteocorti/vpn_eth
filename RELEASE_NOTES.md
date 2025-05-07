@@ -1,1 +1,1 @@
-Added support for the SwiftBar plugin
+Can disconnect even if connected via SSH

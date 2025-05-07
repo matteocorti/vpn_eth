@@ -6,7 +6,7 @@
 # Metadata allows your plugin to show up in the app, and website.
 #
 #  <xbar.title>ETH VPN</xbar.title>
-#  <xbar.version>2.3.0</xbar.version>
+#  <xbar.version>2.3.1</xbar.version>
 #  <xbar.author>Matteo Corti, Michele Marcionelli</xbar.author>
 #  <xbar.author.github>matteocorti, mmdevl</xbar.author.github>
 #  <xbar.desc>Shows the status of the ETH VPN connection</xbar.desc>
@@ -19,7 +19,7 @@
 #  <swiftbar.hideSwiftBar>true</swiftbar.hideSwiftBar>
 
 VPN="/opt/cisco/secureclient/bin/vpn"
-VERSION=2.3.0
+VERSION=2.3.1
 
 SETTINGS=~/.vpn_eth.rc
 VPZS_CACHE=~/.vpn_eth.vpzs
@@ -41,10 +41,6 @@ error() {
     fi
     exit
 }
-
-if [ -n "${SSH_CLIENT}" ]; then
-    error "You are connected via SSH. The keychain is not accessible."
-fi
 
 if [ -r "${SETTINGS}" ]; then
 
@@ -123,6 +119,10 @@ get_from_keychain() {
     account=$1
     service=$2
     name=$3
+
+    if [ -n "${SSH_CLIENT}" ]; then
+        error "You are connected via SSH. The keychain is not accessible."
+    fi
 
     if security find-generic-password -a "${account}" -s "${service}" -w >/dev/null 2>&1; then
         password=$(security find-generic-password -a "${account}" -s "${service}" -w)
@@ -250,6 +250,17 @@ fi
 
 # default color definitions
 COLORMODE="${COLORMODE:-true}"
+
+# Color palette
+#
+# #80ff80: light green
+# #ff4d4d: coral red
+#
+# #000000: black
+# #999999: medium gray
+# #cccccc: light gray
+# #ffffff: white
+
 if "${XBARDarkMode:-false}" || [ "${OS_APPEARANCE:-Light}" = "Dark" ]; then # dark mode
     if [ "${COLORMODE}" = "true" ]; then
         COLOR_VPN_ON="${COLOR_VPN_ON:-#80ff80}"
