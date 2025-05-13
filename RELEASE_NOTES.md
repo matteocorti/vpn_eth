@@ -1,1 +1,1 @@
-Can disconnect even if connected via SSH
+Now xbar/SwiftBar show the correct REALM and VPZ while connected

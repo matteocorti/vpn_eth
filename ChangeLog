@@ -1,3 +1,7 @@
+2025-05-13  Michele Marcionelli  <michele@marcionelli.ch>
+
+        * vpn_eth: Now xbar/SwiftBar show the correct REALM and VPZ while connected
+
 2025-05-07  Matteo Corti  <matteo@corti.li>
 
         * vpn_eth (get_from_keychain): SSH is not OK only when accessing the keychain (but is OK for disconnect)
@@ -32,7 +36,7 @@
 
 2024-02-13  Matteo Corti  <matteo@corti.li>
 
-	    * vpn_eth (cache): create cache file if not existing
+        * vpn_eth (cache): create cache file if not existing
         * vpn_eth (error): check if connected with SSH
         * vpn_eth (check_required_prog): checks for oathtool
 

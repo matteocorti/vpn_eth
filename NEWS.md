@@ -1,3 +1,5 @@
+* 2025-05-13 Version 2.3.2
+ * Now xbar/SwiftBar show the correct REALM and VPZ while connected
 * 2025-05-07 Version 2.3.1
  * Can disconnect even if connected via SSH
 * 2025-04-26 Version 2.3.0

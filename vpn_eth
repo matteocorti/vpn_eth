@@ -6,7 +6,7 @@
 # Metadata allows your plugin to show up in the app, and website.
 #
 #  <xbar.title>ETH VPN</xbar.title>
-#  <xbar.version>2.3.1</xbar.version>
+#  <xbar.version>2.3.2</xbar.version>
 #  <xbar.author>Matteo Corti, Michele Marcionelli</xbar.author>
 #  <xbar.author.github>matteocorti, mmdevl</xbar.author.github>
 #  <xbar.desc>Shows the status of the ETH VPN connection</xbar.desc>
@@ -19,11 +19,12 @@
 #  <swiftbar.hideSwiftBar>true</swiftbar.hideSwiftBar>
 
 VPN="/opt/cisco/secureclient/bin/vpn"
-VERSION=2.3.1
+VERSION=2.3.2
 
 SETTINGS=~/.vpn_eth.rc
 VPZS_CACHE=~/.vpn_eth.vpzs
 REALMS_CACHE=~/.vpn_eth.realms
+CURRENT_CONNECTION=~/.vpn_eth.conn
 
 ################################################################################
 # Prints an error message and exits
@@ -43,11 +44,15 @@ error() {
 }
 
 if [ -r "${SETTINGS}" ]; then
-
     # shellcheck disable=SC1090
     . "${SETTINGS}"
     eval 'REALM=$REALM1'
     eval 'VPZ=$VPZ1'
+fi
+
+if [ -r "${CURRENT_CONNECTION}" ]; then
+    # shellcheck disable=SC1090
+	. "${CURRENT_CONNECTION}"
 fi
 
 ################################################################################
@@ -314,6 +319,9 @@ if [ -n "${MENUBAR}" ]; then
 
         printf "%s@%s.ethz.ch\n%s\n%s\n" "${USER}" "${REALM}" "${radius_password}" "${otp_code}" |
             ${VPN} -s connect "https://${SERVER}/${VPZ}" >/dev/null 2>&1
+
+		# save "connection id" for later statistics
+		{ echo "REALM=${REALM}"; echo "VPZ=${VPZ}"; } > "${CURRENT_CONNECTION}"
 
     fi
 
