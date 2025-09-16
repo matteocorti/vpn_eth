@@ -3,4 +3,6 @@
 Maintainer: [Matteo Corti](https://github.com/matteocorti) <[matteo.corti@ethz.ch](mailto:matteo.corti@ethz.ch)>
 
 * Many thanks to Michele Marcionelli for the first version of the
-  script and for the implementation as an xbar plugin
+  script and for the implementation as an xbar plugin.
+* Many thanks to [hehli](https://github.com/hehli) for the
+  documentation correction.
