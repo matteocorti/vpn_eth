@@ -42,7 +42,7 @@ You will need the VPN server (usually sslvpn.ethz.ch) the realm and the vpz you 
 These can be specified as parameters on the command line. E.g.
 
 ```
-vpn_eth conncect --server sslvpn.ethz.ch --realm id --vpz id --user corti
+vpn_eth connect --server sslvpn.ethz.ch --realm id --vpz id --user corti
 ```
 
 or stored in the configuration file. For example (change the username):
