@@ -247,12 +247,16 @@ info() {
 
     printf "\n  Stored credentials in the keychain:\n\n"
 
-    get_from_keychain "${USER}" "eth_radius" "RADIUS password"
+    if [ -n "${SSH_CLIENT}" ]; then
+        error "You are connected via SSH. The keychain is not accessible."
+    fi
+
+    password=$(security find-generic-password -a "${USER}" -s "eth_radius" -w)
     if [ -n "${password}" ]; then
         printf "    * RADIUS password for user %s\n" "${USER}"
     fi
 
-    get_from_keychain "${USER}" "eth_otp_secret" "OTP secret"
+    password=$(security find-generic-password -a "${USER}" -s "eth_otp_secret" -w)
     if [ -n "${password}" ]; then
         printf "    * OTP secret for user %s\n" "${USER}"
     fi
