@@ -195,6 +195,16 @@ init() {
 # Deletes everything: configuration, caches and credentials
 reset() {
 
+    # user confirmation
+    printf "Every setting and stored credential will be deleted\n"
+    printf "Are you sure you want to continue? [y/n] "
+    read -r ans
+
+    case "${ans}" in
+        [Yy]*) echo "Proceeding...";;
+        *) echo "Aborted."; exit 1;;
+    esac
+    
    if [ -r "${SETTINGS}" ]; then
        printf "Deleting configuration\t%s\n" "${SETTINGS}"
        rm -f "${SETTINGS}"
