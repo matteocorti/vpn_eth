@@ -52,7 +52,7 @@ fi
 
 if [ -r "${CURRENT_CONNECTION}" ]; then
     # shellcheck disable=SC1090
-	. "${CURRENT_CONNECTION}"
+    . "${CURRENT_CONNECTION}"
 fi
 
 ################################################################################
@@ -198,35 +198,38 @@ reset() {
     # user confirmation
     printf "Every setting and stored credential will be deleted\n"
     printf "Are you sure you want to continue? [y/n] "
-    read -r ans
+    read -r answer
 
-    case "${ans}" in
-        [Yy]*) echo "Proceeding...";;
-        *) echo "Aborted."; exit 1;;
+    case "${answer}" in
+    [Yy]*) echo "Proceeding..." ;;
+    *)
+        echo "Aborted."
+        exit 1
+        ;;
     esac
-    
-   if [ -r "${SETTINGS}" ]; then
-       printf "Deleting configuration\t%s\n" "${SETTINGS}"
-       rm -f "${SETTINGS}"
-   fi
-   printf "Deleting caches\n"
-   for f in "${HOME}"/.vpn_eth.conn "${HOME}"/.vpn_eth.realms "${HOME}"/.vpn_eth.vpzs ; do
-       if [ -r "${f}" ] ; then
-           printf "  %s\n" "${f}"
-           rm -f "${f}"
-       fi
-   done
 
-   printf "Deleting credentials in the Keychain\n"
+    if [ -r "${SETTINGS}" ]; then
+        printf "Deleting configuration\t%s\n" "${SETTINGS}"
+        rm -f "${SETTINGS}"
+    fi
+    printf "Deleting caches\n"
+    for f in "${HOME}"/.vpn_eth.conn "${HOME}"/.vpn_eth.realms "${HOME}"/.vpn_eth.vpzs; do
+        if [ -r "${f}" ]; then
+            printf "  %s\n" "${f}"
+            rm -f "${f}"
+        fi
+    done
 
-   get_from_keychain "${USER}" "eth_radius" "RADIUS password"
-    if [ -n "${password}" ] ; then
+    printf "Deleting credentials in the Keychain\n"
+
+    get_from_keychain "${USER}" "eth_radius" "RADIUS password"
+    if [ -n "${password}" ]; then
         printf "  RADIUS password for user %s\n" "${USER}"
         security delete-generic-password -a "${USER}" -s "eth_radius"
     fi
 
     get_from_keychain "${USER}" "eth_otp_secret" "OTP secret"
-    if [ -n "${password}" ] ; then
+    if [ -n "${password}" ]; then
         printf "  OTP secret for user %s\n" "${USER}"
         security delete-generic-password -a "${USER}" -s "eth_otp_secret"
     fi
@@ -242,19 +245,17 @@ info() {
     printf "  server:\t%s\n" "${SERVER}"
     printf "  user:\t\t%s\n" "${USER}"
 
-
     printf "\n  Stored credentials in the keychain:\n\n"
 
     get_from_keychain "${USER}" "eth_radius" "RADIUS password"
-    if [ -n "${password}" ] ; then
+    if [ -n "${password}" ]; then
         printf "    * RADIUS password for user %s\n" "${USER}"
     fi
 
     get_from_keychain "${USER}" "eth_otp_secret" "OTP secret"
-    if [ -n "${password}" ] ; then
+    if [ -n "${password}" ]; then
         printf "    * OTP secret for user %s\n" "${USER}"
     fi
-
 
     printf "\n  Zones:\n\n"
 
@@ -273,7 +274,7 @@ info() {
         # shellcheck disable=SC2154
         printf "    %s) realm = %-20s\tvpz = %s\n" "${i}" "${realm}" "${vpz}"
 
-        i=$((i+1))   # POSIX arithmetic
+        i=$((i + 1)) # POSIX arithmetic
     done
 
     printf "\n"
@@ -413,8 +414,11 @@ if [ -n "${MENUBAR}" ]; then
         printf "%s@%s.ethz.ch\n%s\n%s\n" "${USER}" "${REALM}" "${radius_password}" "${otp_code}" |
             ${VPN} -s connect "https://${SERVER}/${VPZ}" >/dev/null 2>&1
 
-		# save "connection id" for later statistics
-		{ echo "REALM=${REALM}"; echo "VPZ=${VPZ}"; } > "${CURRENT_CONNECTION}"
+        # save "connection id" for later statistics
+        {
+            echo "REALM=${REALM}"
+            echo "VPZ=${VPZ}"
+        } >"${CURRENT_CONNECTION}"
 
     fi
 
@@ -440,19 +444,19 @@ if [ -n "${MENUBAR}" ]; then
     # shellcheck disable=SC2249
     if "${isVpnOn}"; then
         case "${MENUBAR}" in
-            1) echo "VPN | color=${COLOR_VPN_ON}";;
-            2) echo ":lock.shield.fill: | sfsize=18 sfcolor=${COLOR_VPN_ON}";;
+        1) echo "VPN | color=${COLOR_VPN_ON}" ;;
+        2) echo ":lock.shield.fill: | sfsize=18 sfcolor=${COLOR_VPN_ON}" ;;
         esac
     else
         if "${isOnline}"; then
             case "${MENUBAR}" in
-                1) echo "VPN | color=${COLOR_VPN_OFF}";;
-                2) echo ":shield.lefthalf.fill: | sfsize=18 sfcolor=${COLOR_VPN_OFF}";;
+            1) echo "VPN | color=${COLOR_VPN_OFF}" ;;
+            2) echo ":shield.lefthalf.fill: | sfsize=18 sfcolor=${COLOR_VPN_OFF}" ;;
             esac
         else
             case "${MENUBAR}" in
-                1) echo "VPN | color=${COLOR_OFFLINE}";;
-                2) echo ":shield.slash.fill: | sfsize=18 sfcolor=${COLOR_OFFLINE}";;
+            1) echo "VPN | color=${COLOR_OFFLINE}" ;;
+            2) echo ":shield.slash.fill: | sfsize=18 sfcolor=${COLOR_OFFLINE}" ;;
             esac
         fi
     fi
@@ -488,31 +492,34 @@ if [ -n "${MENUBAR}" ]; then
     echo "---"
     # shellcheck disable=SC2249
     case "${MENUBAR}" in
-        1) echo "vpn_eth version ${VERSION}";;
-        2) echo ":shield.lefthalf.fill: vpn_eth version ${VERSION} | sfsize=18";;
+    1) echo "vpn_eth version ${VERSION}" ;;
+    2) echo ":shield.lefthalf.fill: vpn_eth version ${VERSION} | sfsize=18" ;;
     esac
     # check for new version about every 4 hours
     latest_version_file="/tmp/eth_vpn_version"
     # shellcheck disable=SC2312
     if [ ! -f "${latest_version_file}" ] || [ -n "$(find "${latest_version_file}" -mmin +240)" ]; then
         if latest_version=$(curl -fs https://raw.githubusercontent.com/matteocorti/vpn_eth/refs/heads/main/VERSION); then
-            echo "${latest_version}" > "${latest_version_file}"
+            echo "${latest_version}" >"${latest_version_file}"
         fi
     fi
     latest_version=$(cat "${latest_version_file}")
     if [ -z "${latest_version}" ]; then
         # shellcheck disable=SC2249
         case "${MENUBAR}" in
-            1) echo "⚠️  could not check for updates | color=orange";;
-            2) echo ":exclamationmark.triangle.fill: could not check for updates | sfcolor=orange";;
+        1) echo "⚠️  could not check for updates | color=orange" ;;
+        2) echo ":exclamationmark.triangle.fill: could not check for updates | sfcolor=orange" ;;
         esac
     elif [ "${VERSION}" != "${latest_version}" ]; then
         # shellcheck disable=SC2312
-        if [ "$({ echo "${VERSION}"; echo "${latest_version}"; } | sort -V | tail -n 1)" = "${latest_version}" ]; then
+        if [ "$({
+            echo "${VERSION}"
+            echo "${latest_version}"
+        } | sort -V | tail -n 1)" = "${latest_version}" ]; then
             # shellcheck disable=SC2249
             case "${MENUBAR}" in
-                1) echo "⚠️  new version ${latest_version} available | color=orange";;
-                2) echo ":star.fill: new version ${latest_version} available | sfcolor=orange";;
+            1) echo "⚠️  new version ${latest_version} available | color=orange" ;;
+            2) echo ":star.fill: new version ${latest_version} available | sfcolor=orange" ;;
             esac
         fi
     fi
@@ -657,8 +664,8 @@ else
                 sed 's/^.*>> e/E/'
         fi
 
-        if [ -n "${FLUSH}" ] ; then
-            sudo pfctl -a cisco.anyconnect.vpn -F rules > /dev/null 2>&1
+        if [ -n "${FLUSH}" ]; then
+            sudo pfctl -a cisco.anyconnect.vpn -F rules >/dev/null 2>&1
         fi
 
         ;;
