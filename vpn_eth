@@ -222,13 +222,19 @@ reset() {
 
     printf "Deleting credentials in the Keychain\n"
 
-    get_from_keychain "${USER}" "eth_radius" "RADIUS password"
+    password=
+    if security find-generic-password -a "${USER}" -s "eth_radius" -w >/dev/null 2>&1; then
+        password=$(security find-generic-password -a "${USER}" -s "eth_radius" -w)
+    fi
     if [ -n "${password}" ]; then
         printf "  RADIUS password for user %s\n" "${USER}"
         security delete-generic-password -a "${USER}" -s "eth_radius"
     fi
 
-    get_from_keychain "${USER}" "eth_otp_secret" "OTP secret"
+    password=
+    if security find-generic-password -a "${USER}" -s "eth_otp_secret" -w >/dev/null 2>&1; then
+        password=$(security find-generic-password -a "${USER}" -s "eth_otp_secret" -w)
+    fi
     if [ -n "${password}" ]; then
         printf "  OTP secret for user %s\n" "${USER}"
         security delete-generic-password -a "${USER}" -s "eth_otp_secret"
