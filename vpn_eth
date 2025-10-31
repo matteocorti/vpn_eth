@@ -6,7 +6,7 @@
 # Metadata allows your plugin to show up in the app, and website.
 #
 #  <xbar.title>ETH VPN</xbar.title>
-#  <xbar.version>2.3.2</xbar.version>
+#  <xbar.version>2.4.0</xbar.version>
 #  <xbar.author>Matteo Corti, Michele Marcionelli</xbar.author>
 #  <xbar.author.github>matteocorti, mmdevl</xbar.author.github>
 #  <xbar.desc>Shows the status of the ETH VPN connection</xbar.desc>
@@ -19,7 +19,7 @@
 #  <swiftbar.hideSwiftBar>true</swiftbar.hideSwiftBar>
 
 VPN="/opt/cisco/secureclient/bin/vpn"
-VERSION=2.3.2
+VERSION=2.4.0
 
 SETTINGS=~/.vpn_eth.rc
 VPZS_CACHE=~/.vpn_eth.vpzs
@@ -170,7 +170,8 @@ init() {
 
     if [ -r "${SETTINGS}" ]; then
         echo "A settings file (${SETTINGS}) already exists."
-        echo "You can edit it, or remove it before using the 'init' command to regenerate it."
+        echo
+        echo "You can edit it, or remove it with the reset command before using the 'init' command to regenerate it."
     else
 
         # create the settings file
@@ -191,6 +192,85 @@ init() {
 }
 
 ################################################################################
+# Deletes everything: configuration, caches and credentials
+reset() {
+
+   if [ -r "${SETTINGS}" ]; then
+       printf "Deleting configuration\t%s\n" "${SETTINGS}"
+       rm -f "${SETTINGS}"
+   fi
+   printf "Deleting caches\n"
+   for f in "${HOME}"/.vpn_eth.conn "${HOME}"/.vpn_eth.realms "${HOME}"/.vpn_eth.vpzs ; do
+       if [ -r "${f}" ] ; then
+           printf "  %s\n" "${f}"
+           rm -f "${f}"
+       fi
+   done
+
+   printf "Deleting credentials in the Keychain\n"
+
+   get_from_keychain "${USER}" "eth_radius" "RADIUS password"
+    if [ -n "${password}" ] ; then
+        printf "  RADIUS password for user %s\n" "${USER}"
+        security delete-generic-password -a "${USER}" -s "eth_radius"
+    fi
+
+    get_from_keychain "${USER}" "eth_otp_secret" "OTP secret"
+    if [ -n "${password}" ] ; then
+        printf "  OTP secret for user %s\n" "${USER}"
+        security delete-generic-password -a "${USER}" -s "eth_otp_secret"
+    fi
+
+}
+
+################################################################################
+# Prints the configuration
+info() {
+
+    printf "vpn_eth configuration:\n\n"
+
+    printf "  server:\t%s\n" "${SERVER}"
+    printf "  user:\t\t%s\n" "${USER}"
+
+
+    printf "\n  Stored credentials in the keychain:\n\n"
+
+    get_from_keychain "${USER}" "eth_radius" "RADIUS password"
+    if [ -n "${password}" ] ; then
+        printf "    * RADIUS password for user %s\n" "${USER}"
+    fi
+
+    get_from_keychain "${USER}" "eth_otp_secret" "OTP secret"
+    if [ -n "${password}" ] ; then
+        printf "    * OTP secret for user %s\n" "${USER}"
+    fi
+
+
+    printf "\n  Zones:\n\n"
+
+    # Get all REALM variable names
+    i=1
+    while :; do
+        # is REALM<i> set?
+        eval "isset=\${REALM${i}+yes}"
+        # shellcheck disable=SC2154
+        [ "${isset}" = yes ] || break
+
+        # fetch values (VPZ<i> may be unset → empty)
+        eval "realm=\${REALM${i}}"
+        eval "vpz=\${VPZ${i}-}"
+
+        # shellcheck disable=SC2154
+        printf "    %s) realm = %-20s\tvpz = %s\n" "${i}" "${realm}" "${vpz}"
+
+        i=$((i+1))   # POSIX arithmetic
+    done
+
+    printf "\n"
+
+}
+
+################################################################################
 # Prints usage information
 # Params
 #   $1 error message (optional)
@@ -204,17 +284,20 @@ usage() {
     echo "   connect,c                       Connects"
     echo "   disconnect,d                    Disconnects"
     echo "   init,i                          Initializes the default settings"
+    echo "   info                            Shows the configuration info"
+    echo "   reset                           Deletes all the settings and stored credentials"
     echo "   stats                           Shows the connection statistics"
     echo "   status,s                        Shows the connection status"
     echo
     echo "Options:"
     echo "   -h,--help,-?                    This help message"
-    echo "   -s,--server server              VPN server"
-    echo "   -r,--realm realm                Realm"
-    echo "   -z,--vpz vpz                    VPZ"
-    echo "   -u,--user user                  User"
+    echo
     echo "   -f,--flush-pf                   Removes AnyConnect local firewall rules"
+    echo "   -r,--realm realm                Realm"
+    echo "   -s,--server server              VPN server"
+    echo "   -u,--user user                  User"
     echo "   -v,--version                    Prints the script version number"
+    echo "   -z,--vpz vpz                    VPZ"
     echo
     echo "Report bugs to https://github.com/matteocorti/vpn_eth/issues"
     echo
@@ -469,6 +552,16 @@ else
             shift
             ;;
 
+        info)
+            COMMAND=info
+            shift
+            ;;
+
+        reset)
+            COMMAND=reset
+            shift
+            ;;
+
         status | s)
             COMMAND=status
             shift
@@ -577,6 +670,16 @@ else
     init)
 
         init
+        ;;
+
+    info)
+
+        info
+        ;;
+
+    reset)
+
+        reset
         ;;
 
     status)

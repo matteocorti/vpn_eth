@@ -1,3 +1,6 @@
+* 2025-10-31 Version 2.4.0
+ * Added a command (info) to show the current configuration
+ * Added a command (reset) to erase all the credentials and the configuration
 * 2025-05-13 Version 2.3.2
  * Now xbar/SwiftBar show the correct REALM and VPZ while connected
 * 2025-05-07 Version 2.3.1

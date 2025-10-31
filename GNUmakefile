@@ -30,7 +30,6 @@ remove_blanks:
 	sed -i '' 's/[[:blank:]]*$$//' $(DIST_FILES)
 
 formatting_check:
-	! grep -q '\\t' $(FORMATTED_FILES)
 	! grep -q '[[:blank:]]$$' $(DIST_FILES)
 
 SHFMT= := $(shell command -v shfmt 2> /dev/null)

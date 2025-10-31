@@ -16,17 +16,19 @@ Commands:
    connect,c                       Connects
    disconnect,d                    Disconnects
    init,i                          Initializes the default settings
+   info                            Shows the configuration info
    stats                           Shows the connection statistics
    status,s                        Shows the connection status
 
 Options:
    -h,--help,-?                    This help message
-   -s,--server server              VPN server
-   -r,--realm realm                Realm
-   -z,--vpz vpz                    VPZ
-   -u,--user user                  User
+
    -f,--flush-pf                   Removes AnyConnect local firewall rules
+   -r,--realm realm                Realm
+   -s,--server server              VPN server
+   -u,--user user                  User
    -v,--version                    Prints the script version number
+   -z,--vpz vpz                    VPZ
 
 Report bugs to https://github.com/matteocorti/vpn_eth/issues
 ```
