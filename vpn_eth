@@ -6,7 +6,7 @@
 # Metadata allows your plugin to show up in the app, and website.
 #
 #  <xbar.title>ETH VPN</xbar.title>
-#  <xbar.version>2.4.0</xbar.version>
+#  <xbar.version>2.5.0</xbar.version>
 #  <xbar.author>Matteo Corti, Michele Marcionelli</xbar.author>
 #  <xbar.author.github>matteocorti, mmdevl</xbar.author.github>
 #  <xbar.desc>Shows the status of the ETH VPN connection</xbar.desc>
@@ -19,7 +19,7 @@
 #  <swiftbar.hideSwiftBar>true</swiftbar.hideSwiftBar>
 
 VPN="/opt/cisco/secureclient/bin/vpn"
-VERSION=2.4.0
+VERSION=2.5.0
 
 SETTINGS=~/.vpn_eth.rc
 VPZS_CACHE=~/.vpn_eth.vpzs
@@ -357,44 +357,13 @@ elif ps -p "$(ps -p $$ -o ppid=)" -o comm= | grep -q '/SwiftBar$'; then
     MENUBAR=2 # SwiftBar
 fi
 
-# default color definitions
-COLORMODE="${COLORMODE:-true}"
+# Colors for xbar
+COLOR_VPN_ON="${COLOR_VPN_ON:-#80ff80}"
+COLOR_VPN_OFF="${COLOR_VPN_OFF:-#cccccc}"
+COLOR_OFFLINE="${COLOR_OFFLINE:-#999999}"
 
-# Color palette
-#
-# #80ff80: light green
-# #ff4d4d: coral red
-#
-# #000000: black
-# #999999: medium gray
-# #cccccc: light gray
-# #ffffff: white
-
-if "${XBARDarkMode:-false}" || [ "${OS_APPEARANCE:-Light}" = "Dark" ]; then # dark mode
-    if [ "${COLORMODE}" = "true" ]; then
-        COLOR_VPN_ON="${COLOR_VPN_ON:-#80ff80}"
-        COLOR_VPN_OFF="${COLOR_VPN_OFF:-#cccccc}"
-        COLOR_OFFLINE="${COLOR_OFFLINE:-#999999}"
-        COLOR_ERROR="${COLOR_ERROR:-#ff4d4d}"
-    else
-        COLOR_VPN_ON="${COLOR_VPN_ON:-#ffffff}"
-        COLOR_VPN_OFF="${COLOR_VPN_OFF:-#cccccc}"
-        COLOR_OFFLINE="${COLOR_OFFLINE:-#999999}"
-        COLOR_ERROR="${COLOR_ERROR:-#ff4d4d}"
-    fi
-else # light mode
-    if [ "${COLORMODE}" = "true" ]; then
-        COLOR_VPN_ON="${COLOR_VPN_ON:-#80ff80}"
-        COLOR_VPN_OFF="${COLOR_VPN_OFF:-#ffffff}"
-        COLOR_OFFLINE="${COLOR_OFFLINE:-#999999}"
-        COLOR_ERROR="${COLOR_ERROR:-#ff4d4d}"
-    else
-        COLOR_VPN_ON="${COLOR_VPN_ON:-#ffffff}"
-        COLOR_VPN_OFF="${COLOR_VPN_OFF:-#ffffff}"
-        COLOR_OFFLINE="${COLOR_OFFLINE:-#999999}"
-        COLOR_ERROR="${COLOR_ERROR:-#ff4d4d}"
-    fi
-fi
+# Color for error messages (used in the drop down menu)
+COLOR_ERROR="${COLOR_ERROR:-#ff4d4d}"
 
 PWD=$(pwd)
 if [ -n "${MENUBAR}" ]; then
@@ -455,18 +424,18 @@ if [ -n "${MENUBAR}" ]; then
     if "${isVpnOn}"; then
         case "${MENUBAR}" in
         1) echo "VPN | color=${COLOR_VPN_ON}" ;;
-        2) echo ":lock.shield.fill: | sfsize=18 sfcolor=${COLOR_VPN_ON}" ;;
+        2) echo ":lock.shield.fill: | sfsize=18" ;;
         esac
     else
         if "${isOnline}"; then
             case "${MENUBAR}" in
             1) echo "VPN | color=${COLOR_VPN_OFF}" ;;
-            2) echo ":shield.lefthalf.fill: | sfsize=18 sfcolor=${COLOR_VPN_OFF}" ;;
+            2) echo ":shield.lefthalf.fill: | sfsize=18" ;;
             esac
         else
             case "${MENUBAR}" in
             1) echo "VPN | color=${COLOR_OFFLINE}" ;;
-            2) echo ":shield.slash.fill: | sfsize=18 sfcolor=${COLOR_OFFLINE}" ;;
+            2) echo ":shield.slash.fill: | sfsize=18" ;;
             esac
         fi
     fi

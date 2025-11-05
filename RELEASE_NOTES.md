@@ -1,1 +1,1 @@
-Added a command (info) to show the current and a command (reset) to erase all the credentials and the configuration
+Removed colour support for the SwiftBar icon, in favour of the macOS default setting
