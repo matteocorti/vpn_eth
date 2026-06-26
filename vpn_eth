@@ -1,12 +1,12 @@
 #!/bin/sh
 
-# Copyright (c) 2024-2025 Matteo Corti <matteo.corti@ethz.ch>
-# Copyright (c) 2024-2025 Michele Marcionelli <mm@ethz.ch>
+# Copyright (c) 2024-2026 Matteo Corti <matteo.corti@ethz.ch>
+# Copyright (c) 2024-2026 Michele Marcionelli <mm@ethz.ch>
 
 # Metadata allows your plugin to show up in the app, and website.
 #
 #  <xbar.title>ETH VPN</xbar.title>
-#  <xbar.version>2.5.0</xbar.version>
+#  <xbar.version>2.6.0</xbar.version>
 #  <xbar.author>Matteo Corti, Michele Marcionelli</xbar.author>
 #  <xbar.author.github>matteocorti, mmdevl</xbar.author.github>
 #  <xbar.desc>Shows the status of the ETH VPN connection</xbar.desc>
@@ -19,7 +19,7 @@
 #  <swiftbar.hideSwiftBar>true</swiftbar.hideSwiftBar>
 
 VPN="/opt/cisco/secureclient/bin/vpn"
-VERSION=2.5.0
+VERSION=2.6.0
 
 SETTINGS=~/.vpn_eth.rc
 VPZS_CACHE=~/.vpn_eth.vpzs
@@ -619,32 +619,38 @@ else
 
     connect)
 
-        # get the credentials from macOS keychain
-        get_from_keychain "${USER}" "eth_radius" "RADIUS password"
-        radius_password="${password}"
-        get_from_keychain "${USER}" "eth_otp_secret" "OTP secret"
-        otp_secret="${password}"
-
-        if ! otp_code=$(oathtool --totp=sha1 --time-step-size=30 -b "${otp_secret}" 2>/dev/null); then
-            error "cannot generate OTP code (check the OTP secret in the keychain)"
-        fi
-
-        require_setting SERVER
-        require_setting VPZ
-        require_setting REALM
-
-        if [ -n "${VERBOSE}" ]; then
-            printf "%s@%s.ethz.ch\n%s\n%s\n" "${USER}" "${REALM}" "${radius_password}" "${otp_code}" |
-                ${VPN} -s connect "https://${SERVER}/${VPZ}"
+        if ${VPN} status | grep -q Connected; then
+            echo "Already connected"
         else
-            printf "%s@%s.ethz.ch\n%s\n%s\n" "${USER}" "${REALM}" "${radius_password}" "${otp_code}" |
-                ${VPN} -s connect "https://${SERVER}/${VPZ}" 2>&1 |
-                grep 'error:' |
-                sed 's/^.*>> e/E/'
-        fi
 
-        if [ -n "${FLUSH}" ]; then
-            sudo pfctl -a cisco.anyconnect.vpn -F rules >/dev/null 2>&1
+            # get the credentials from macOS keychain
+            get_from_keychain "${USER}" "eth_radius" "RADIUS password"
+            radius_password="${password}"
+            get_from_keychain "${USER}" "eth_otp_secret" "OTP secret"
+            otp_secret="${password}"
+
+            if ! otp_code=$(oathtool --totp=sha1 --time-step-size=30 -b "${otp_secret}" 2>/dev/null); then
+                error "cannot generate OTP code (check the OTP secret in the keychain)"
+            fi
+
+            require_setting SERVER
+            require_setting VPZ
+            require_setting REALM
+
+            if [ -n "${VERBOSE}" ]; then
+                printf "%s@%s.ethz.ch\n%s\n%s\n" "${USER}" "${REALM}" "${radius_password}" "${otp_code}" |
+                    ${VPN} -s connect "https://${SERVER}/${VPZ}"
+            else
+                printf "%s@%s.ethz.ch\n%s\n%s\n" "${USER}" "${REALM}" "${radius_password}" "${otp_code}" |
+                    ${VPN} -s connect "https://${SERVER}/${VPZ}" 2>&1 |
+                    grep 'error:' |
+                    sed 's/^.*>> e/E/'
+            fi
+
+            if [ -n "${FLUSH}" ]; then
+                sudo pfctl -a cisco.anyconnect.vpn -F rules >/dev/null 2>&1
+            fi
+
         fi
 
         ;;

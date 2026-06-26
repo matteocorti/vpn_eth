@@ -1,3 +1,7 @@
+2026-06-26  Matteo Corti  <matteo@corti.li>
+
+        * vpn_eth: Check if already connected
+
 2025-05-13  Michele Marcionelli  <michele@marcionelli.ch>
 
         * vpn_eth: Now xbar/SwiftBar show the correct REALM and VPZ while connected

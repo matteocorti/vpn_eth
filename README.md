@@ -1,6 +1,6 @@
 # vpn\_eth
 
-&copy; Matteo Corti & Michele Marcionelli, ETH Zurich, 2024-2025.
+&copy; Matteo Corti & Michele Marcionelli, ETH Zurich, 2024-2026.
 
  see [AUTHORS.md](AUTHORS.md) for the complete list of contributors
 

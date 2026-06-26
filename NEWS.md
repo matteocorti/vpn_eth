@@ -1,3 +1,7 @@
+* 2026-06-26 Version 2.6.0
+ * Checks if the VPN is already connected when starting
+* 2025-11-05 Version 2.5.0
+ * Removed colour support for the SwiftBar icon, in favour of the macOS default setting
 * 2025-10-31 Version 2.4.0
  * Added a command (info) to show the current configuration
  * Added a command (reset) to erase all the credentials and the configuration
