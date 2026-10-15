@@ -70,6 +70,7 @@ ifdef COMPLETIONS_DIR
 endif
 
 install:
+	mkdir -p /usr/local/bin
 	cp vpn_eth /usr/local/bin
 
 install_xbar:
