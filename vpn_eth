@@ -16,7 +16,7 @@
 #  <swiftbar.hideRunInTerminal>true</swiftbar.hideRunInTerminal>
 #  <swiftbar.hideLastUpdated>true</swiftbar.hideLastUpdated>
 #  <swiftbar.hideDisablePlugin>true</swiftbar.hideDisablePlugin>
-#  <swiftbar.hideSwiftBar>true</swiftbar.hideSwiftBar>
+#  <swiftbar.hideSwiftBar>false</swiftbar.hideSwiftBar>
 
 VPN="/opt/cisco/secureclient/bin/vpn"
 VERSION=2.6.0
